@@ -1,0 +1,157 @@
+{% extends 'unfold/layouts/base_simple.html' %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}
+    Dashboard | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            Whatsup Seller
+        </a>
+    </h1>
+{% endblock %}
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+    canvas {
+        min-height: 280px;
+    }
+    .stat-card {
+        background: linear-gradient(145deg, #ffffff, #f5f7fa);
+        border: 1px solid rgba(229, 231, 235, 0.8);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 5px;
+        background: linear-gradient(to bottom, #3b82f6, #10b981);
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
+    .stat-card.users::after { background: linear-gradient(to bottom, #3b82f6, #60a5fa); }
+    .stat-card.customers::after { background: linear-gradient(to bottom, #10b981, #34d399); }
+    .stat-card.messages::after { background: linear-gradient(to bottom, #f59e0b, #fbbf24); }
+    .stat-card.campaigns::after { background: linear-gradient(to bottom, #8b5cf6, #a78bfa); }
+    .stat-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    .stat-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.5rem;
+    }
+    .stat-detail {
+        font-size: 0.875rem;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .chart-container {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        transition: all 0.3s ease;
+    }
+    .chart-container:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .chart-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .badge-blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .badge-green { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .badge-yellow { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .badge-purple { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    
+    /* Dark mode styles */
+    .dark .stat-card {
+        background: linear-gradient(145deg, #1f2937, #111827);
+        border-color: rgba(55, 65, 81, 0.8);
+    }
+    .dark .stat-title { color: #9ca3af; }
+    .dark .stat-value { color: #f9fafb; }
+    .dark .stat-detail { color: #9ca3af; }
+    .dark .chart-container { background: #1f2937; }
+    .dark .chart-title { 
+        color: #e5e7eb; 
+        border-bottom-color: #374151;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animate__animated animate__fadeIn">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Dashboard Overview</h1>
+    
+    <div class="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Total Users -->
+        <div class="stat-card users animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="stat-title">Total Users</h3>
+                <span class="badge badge-blue">Users</span>
+            </div>
+            <p class="stat-value">{{ total_users }}</p>
+            <div class="stat-detail">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Active: {{ active_users }}
+                </span>
+                <span class="ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    New (30d): {{ new_users_30d }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+
+{% endblock %}
