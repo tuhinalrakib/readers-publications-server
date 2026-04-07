@@ -11,13 +11,14 @@ __pycache__/
 *.pyc
 
 # Ignore static files
-# static_root/
+static_root/
 
 # Ignore secret settings file
 secrets.json
 
 # Ignore environment-specific settings
 .env
+sample.env
 
 # Ignore IDE and code editor settings (customize as needed)
 .vscode/
