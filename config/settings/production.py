@@ -5,19 +5,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    BACKEND_SITE_HOST,
+    "localhost",
+    ".vercel.app",
+    "127.0.0.1"
+]
 
-# Database connection
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-    }
-}
-# 51q4dXLzDjEcw9bN
+CSRF_TRUSTED_ORIGINS = [
+    "https://readers-publications-server.vercel.app",
+]
+
 
 # Static variables
 STATIC_URL = '/static/'
