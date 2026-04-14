@@ -36,11 +36,13 @@ FRONTEND_SITE_HOST = config("FRONTEND_SITE_HOST")
 ALLOWED_HOSTS = [
     BACKEND_SITE_HOST.split("//")[1],
     "localhost",
+    ".vercel.app",
     "127.0.0.1"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     BACKEND_SITE_HOST,
+    "https://readers-publications-server.vercel.app",
 ]
 
 # Application definition
