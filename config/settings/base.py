@@ -28,13 +28,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 BACKEND_SITE_HOST = config("BACKEND_SITE_HOST")
 FRONTEND_SITE_HOST = config("FRONTEND_SITE_HOST")
 
 ALLOWED_HOSTS = [
-    BACKEND_SITE_HOST.split("//")[1],
+    BACKEND_SITE_HOST,
     "localhost",
     ".vercel.app",
     "127.0.0.1"
@@ -42,7 +42,6 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     BACKEND_SITE_HOST,
-    "https://readers-publications-server.vercel.app",
 ]
 
 # Application definition
