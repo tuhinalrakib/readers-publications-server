@@ -30,7 +30,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-BACKEND_SITE_HOST = config("BACKEND_SITE_HOST")
+BACKEND_SITE_HOST = config("BACKEND_SITE_HOST").replace("https://", "").replace("http://", "").strip()
 FRONTEND_SITE_HOST = config("FRONTEND_SITE_HOST")
 
 ALLOWED_HOSTS = [
@@ -41,8 +41,12 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    BACKEND_SITE_HOST,
+    "https://readers-publications-server.vercel.app",
 ]
+
+# for vercel deploy
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
