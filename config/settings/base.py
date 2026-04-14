@@ -51,6 +51,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Application definition
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
+    
     # unfold a custom admin panel
     "unfold",
     "unfold.contrib.filters",
