@@ -28,7 +28,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# DEBUG = False
+DEBUG = True
 
 BACKEND_SITE_HOST = config("BACKEND_SITE_HOST").replace("https://", "").replace("http://", "").strip()
 FRONTEND_SITE_HOST = config("FRONTEND_SITE_HOST")
