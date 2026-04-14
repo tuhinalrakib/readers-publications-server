@@ -10,17 +10,21 @@ from user.serializers import UserReviewsSerializerRead
 
 class UserReviewsView(ListAPIView):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
+    serializer_class = UserReviewsSerializerRead
+    pagination_class = GeneralPagination
+    
+    def get_queryset(self):
         try:
-            user = request.user
-            paginator = GeneralPagination()
-            paginator.page_size = 4
-            page = paginator.paginate_queryset(BookReview.objects.filter(user=user), request)
-            serializer = UserReviewsSerializerRead(page, many=True)
-            return paginator.get_paginated_response(serializer.data)
+            if getattr(self,"swagger_fake_view", False):
+                BookReview.objects.none
+                
+            user = self.request.user
+            
+            if not user.is_authenticated:
+                return BookReview.objects.none()
+                      
+            return BookReview.objects.filter(user=user)
         except BookReview.DoesNotExist:
             return Response({
                 "message": "User reviews not found"
             }, status=status.HTTP_404_NOT_FOUND)
-
