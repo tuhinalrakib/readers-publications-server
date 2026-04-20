@@ -129,11 +129,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('database'),
-        'USER': config('user'),
-        'PASSWORD': config("PASSWORD"),
-        'HOST': config('host'),
-        'PORT': config('port')
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config("DB_PASSWORD"),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT')
     }
 }
 
@@ -197,9 +197,10 @@ USE_TZ = True
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = "authenticated" # Possible values: "staff", "authenticated", "any"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# MEDIA_URL = BASE_DIR / 'media'
 MEDIA_URL = "/media/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static_root")
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
