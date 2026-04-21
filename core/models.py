@@ -34,10 +34,10 @@ class Carousel(BaseModel):
         verbose_name_plural = "Carousels"
         ordering = ['-created_at']  # Order by creation date descending
         
-    # def clean(self):
-    #     if Carousel.objects.filter(is_advertise=True).count() > 2 and self.is_advertise:
-    #         raise ValueError("Only up to 2 carousel items can be marked as advertisements.")
-    #     return super().clean()
+    def clean(self):
+        if Carousel.objects.filter(is_advertise=True).count() > 2 and self.is_advertise:
+            raise ValueError("Only up to 2 carousel items can be marked as advertisements.")
+        return super().clean()
     
 
 class GeneralData(BaseModel):

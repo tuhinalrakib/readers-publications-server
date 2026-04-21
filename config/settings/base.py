@@ -38,6 +38,7 @@ ALLOWED_HOSTS = [
     BACKEND_SITE_HOST,
     "localhost",
     ".vercel.app",
+    ".render.app",
     "127.0.0.1"
 ]
 
