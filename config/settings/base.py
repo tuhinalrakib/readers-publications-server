@@ -201,10 +201,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # MEDIA_URL = BASE_DIR / 'media'
 MEDIA_URL = "/media/"
 
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Production-এ সব static ফাইল যেখানে জমা হবে
+STATIC_URL = '/static/'
+
+# os.path ব্যবহার করে পাথ সেট করা
+STATIC_ROOT = os.path.join(BASE_DIR, 'config', 'static_root')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 SITE_NAME = "READERS PUBLICATION"
 
