@@ -201,13 +201,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # MEDIA_URL = BASE_DIR / 'media'
 MEDIA_URL = "/media/"
 
-STATIC_URL = '/static/'
-
 # Production-এ সব static ফাইল যেখানে জমা হবে
 STATIC_URL = '/static/'
 
 # os.path ব্যবহার করে পাথ সেট করা
-STATIC_ROOT = os.path.join(BASE_DIR, 'config', 'static_root')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
+# print(f"Static files will be collected to: {STATIC_ROOT}")
 
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
