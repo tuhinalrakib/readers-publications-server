@@ -11,7 +11,7 @@ __pycache__/
 *.pyc
 
 # Ignore static files
-static_root/
+# static_root/
 
 # Ignore secret settings file
 secrets.json

@@ -209,7 +209,18 @@ STATIC_URL = '/static/'
 # os.path ব্যবহার করে পাথ সেট করা
 STATIC_ROOT = os.path.join(BASE_DIR, 'config', 'static_root')
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# তার বদলে এটি যুক্ত করুন:
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", # Manifest এর বদলে এটি ব্যবহার করা Vercel এর জন্য সেফ
+    },
+}
+
 
 SITE_NAME = "READERS PUBLICATION"
 
