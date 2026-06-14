@@ -10,5 +10,5 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "name_bn", "description", "image_url", "slug", "index_number", "is_featured"]
 
     def get_image_url(self, obj):
-        return f"{settings.BACKEND_SITE_HOST}{obj.image.url}" if obj.image else ""
+        return f"{settings.BACKEND_SITE_URL}{obj.image.url}" if obj.image else ""
  

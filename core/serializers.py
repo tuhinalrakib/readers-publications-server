@@ -16,7 +16,7 @@ class CarouselSerializer(serializers.ModelSerializer):
         fields = ['title', 'title_bn', 'subtitle', 'subtitle_bn', 'image_url', 'link']
 
     def get_image_url(self, obj):
-        return f"{settings.BACKEND_SITE_HOST}{obj.image.url}" if obj.image else ""
+        return f"{settings.BACKEND_SITE_URL}{obj.image.url}" if obj.image else ""
 
 
 class TestimonialSerializer(serializers.ModelSerializer):
@@ -27,4 +27,4 @@ class TestimonialSerializer(serializers.ModelSerializer):
         fields = ['name', 'name_bn', 'designation', 'designation_bn', 'city', 'city_bn', 'comment', 'comment_bn', 'rating', 'image_url']
 
     def get_image_url(self, obj):
-        return f"{settings.BACKEND_SITE_HOST}{obj.image.url}" if obj.image else ""
+        return f"{settings.BACKEND_SITE_URL}{obj.image.url}" if obj.image else ""

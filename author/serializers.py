@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Author
 from django.db.models import Avg, Count, Sum
+from django.conf import settings
 from book.serializers.book import BookSerializerListRead
 
 class AuthorSerializerListRead(serializers.ModelSerializer):
@@ -18,7 +19,7 @@ class AuthorSerializerListRead(serializers.ModelSerializer):
 
     def get_profile_picture(self, obj):
         if obj.profile_picture:
-            return self.context['request'].build_absolute_uri(obj.profile_picture.url)
+            return f"{settings.BACKEND_SITE_URL}{obj.profile_picture.url}"
         return None
     
     def get_tags(self, obj):
@@ -58,7 +59,7 @@ class AuthorSerializerDetailRead(serializers.ModelSerializer):
 
     def get_profile_picture(self, obj):
         if obj.profile_picture:
-            return self.context['request'].build_absolute_uri(obj.profile_picture.url)
+            return f"{settings.BACKEND_SITE_URL}{obj.profile_picture.url}"
         return None
     
     def get_tags(self, obj):

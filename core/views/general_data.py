@@ -16,7 +16,7 @@ def get_general_data(request):
             "address": general_data.address,
             "address_bn": general_data.address_bn,
             "delivery_charge": general_data.delivery_charge,
-            "website_logo": settings.BACKEND_SITE_HOST + general_data.website_logo.url if general_data.website_logo else None,
+            "website_logo": settings.BACKEND_SITE_URL + general_data.website_logo.url if general_data.website_logo else None,
             "social_links": {
                 "facebook": general_data.facebook,
                 "twitter": general_data.twitter,

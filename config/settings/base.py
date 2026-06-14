@@ -31,7 +31,20 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = False
 # DEBUG = True
 
-BACKEND_SITE_HOST = config("BACKEND_SITE_HOST").replace("https://", "").replace("http://", "").strip()
+_BACKEND_SITE_HOST_RAW = config("BACKEND_SITE_HOST").strip().rstrip("/")
+if _BACKEND_SITE_HOST_RAW.startswith("https://"):
+    BACKEND_SITE_SCHEME = "https"
+    BACKEND_SITE_HOST = _BACKEND_SITE_HOST_RAW.replace("https://", "", 1)
+elif _BACKEND_SITE_HOST_RAW.startswith("http://"):
+    BACKEND_SITE_SCHEME = "http"
+    BACKEND_SITE_HOST = _BACKEND_SITE_HOST_RAW.replace("http://", "", 1)
+else:
+    BACKEND_SITE_HOST = _BACKEND_SITE_HOST_RAW
+    BACKEND_SITE_SCHEME = config(
+        "BACKEND_SITE_SCHEME",
+        default="http" if BACKEND_SITE_HOST.startswith(("localhost", "127.0.0.1")) else "https",
+    )
+BACKEND_SITE_URL = f"{BACKEND_SITE_SCHEME}://{BACKEND_SITE_HOST}"
 FRONTEND_SITE_HOST = config("FRONTEND_SITE_HOST")
 
 ALLOWED_HOSTS = [

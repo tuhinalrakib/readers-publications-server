@@ -86,7 +86,7 @@ class UserProfileSerializerRead(serializers.ModelSerializer):
         return instance.user.date_joined.strftime("%d %b, %Y")
 
     def get_profile_picture(self, instance):
-        return settings.BACKEND_SITE_HOST + instance.profile_picture.url if instance.profile_picture else None
+        return settings.BACKEND_SITE_URL + instance.profile_picture.url if instance.profile_picture else None
     
     def get_cart_items(self, instance):
         items = Cart.objects.filter(user=instance.user)
@@ -120,7 +120,7 @@ class UserBookWishListSerializerRead(serializers.ModelSerializer):
         fields = ['id', 'book_id', 'title', 'title_bn', 'author_name', 'author_name_bn', 'author_id', 'author_slug', 'cover_image', 'price', 'discount_price', 'slug']
 
     def get_cover_image(self, instance):
-        return settings.BACKEND_SITE_HOST + instance.book.cover_image.url if instance.book.cover_image else None
+        return settings.BACKEND_SITE_URL + instance.book.cover_image.url if instance.book.cover_image else None
 
 class UserReviewsSerializerRead(serializers.ModelSerializer):
     book = serializers.SerializerMethodField()
@@ -136,7 +136,7 @@ class UserReviewsSerializerRead(serializers.ModelSerializer):
             "title": instance.book.title,
             "title_bn": instance.book.title_bn,
             "slug": instance.book.slug,
-            "cover_image": settings.BACKEND_SITE_HOST + instance.book.cover_image.url if instance.book.cover_image else None,
+            "cover_image": settings.BACKEND_SITE_URL + instance.book.cover_image.url if instance.book.cover_image else None,
             "author_name": instance.book.author.name,
             "author_name_bn": instance.book.author.name_bn,
             "author_slug": instance.book.author.slug,

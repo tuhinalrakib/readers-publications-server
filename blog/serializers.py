@@ -7,7 +7,7 @@ class BlogSerializerListRead(serializers.ModelSerializer):
     published_date = serializers.SerializerMethodField()
 
     def get_cover_image(self, obj):
-        return f"{settings.BACKEND_SITE_HOST}{obj.cover_image.url}" if obj.cover_image else None
+        return f"{settings.BACKEND_SITE_URL}{obj.cover_image.url}" if obj.cover_image else None
     
     def get_published_date(self, obj):
         return obj.published_date.strftime("%B %d, %Y") if obj.published_date else None
@@ -42,20 +42,20 @@ class BlogSerializerDetailRead(serializers.ModelSerializer):
     content_bn = serializers.SerializerMethodField()
 
     def get_cover_image(self, obj):
-        return f"{settings.BACKEND_SITE_HOST}{obj.cover_image.url}" if obj.cover_image else None
+        return f"{settings.BACKEND_SITE_URL}{obj.cover_image.url}" if obj.cover_image else None
     
     def get_published_date(self, obj):
         return obj.published_date.strftime("%B %d, %Y") if obj.published_date else None
     
     def get_author_image(self, obj):
-        return f"{settings.BACKEND_SITE_HOST}{obj.author_image.url}" if obj.author_image else None
+        return f"{settings.BACKEND_SITE_URL}{obj.author_image.url}" if obj.author_image else None
     
     def get_content(self, obj):
         if obj.content:
             # Replace relative media URLs with full backend host URL
             return re.sub(
                 r'src="/media/([^"]+)"',
-                f'src="{settings.BACKEND_SITE_HOST}/media/\\1"',
+                f'src="{settings.BACKEND_SITE_URL}/media/\\1"',
                 obj.content
             )
         return None
@@ -65,7 +65,7 @@ class BlogSerializerDetailRead(serializers.ModelSerializer):
             # Replace relative media URLs with full backend host URL
             return re.sub(
                 r'src="/media/([^"]+)"',
-                f'src="{settings.BACKEND_SITE_HOST}/media/\\1"',
+                f'src="{settings.BACKEND_SITE_URL}/media/\\1"',
                 obj.content_bn
             )
         return None

@@ -45,7 +45,7 @@ class CartSerializerRead(serializers.ModelSerializer):
             'slug': obj.book.slug,
             'title': obj.book.title,
             'title_bn': obj.book.title_bn,
-            'cover_image': f"{settings.BACKEND_SITE_HOST}{obj.book.cover_image.url}" if obj.book.cover_image else None,
+            'cover_image': f"{settings.BACKEND_SITE_URL}{obj.book.cover_image.url}" if obj.book.cover_image else None,
             "price": obj.book.price,
             "discounted_price": obj.book.discounted_price,
             "is_active": obj.book.is_active,

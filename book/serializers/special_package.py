@@ -13,7 +13,7 @@ class SpecialPackageSerializerListRead(serializers.ModelSerializer):
 
     def get_image(self, obj):
         if obj.image:
-            return f"{settings.BACKEND_SITE_HOST}{obj.image.url}"
+            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
         return None
 
     
@@ -30,7 +30,7 @@ class SpecialPackageSerializerDetailRead(serializers.ModelSerializer):
 
     def get_image(self, obj):
         if obj.image:
-            return f"{settings.BACKEND_SITE_HOST}{obj.image.url}"
+            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
         return None
 
     def get_books(self, obj):
@@ -49,7 +49,7 @@ class SpecialPackageSerializerDetailRead(serializers.ModelSerializer):
                 "discounted_price": book.book.discounted_price,
                 "rating": book.book.rating,
                 "rating_count": book.book.rating_count,
-                "cover_image": f"{settings.BACKEND_SITE_HOST}{book.book.cover_image.url}" if book.book.cover_image else None
+                "cover_image": f"{settings.BACKEND_SITE_URL}{book.book.cover_image.url}" if book.book.cover_image else None
             })
         return books_data
     
