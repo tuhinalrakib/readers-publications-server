@@ -1,5 +1,6 @@
 from book.models import BookReview
 import phonenumbers
+from phonenumbers import PhoneNumberFormat
 from rest_framework import serializers
 from django.conf import settings
 from user.models import User, UserProfile, BookWishList
@@ -8,6 +9,7 @@ from django.core.validators import EmailValidator
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     
     class Meta:
         model = User
@@ -24,11 +26,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             return value
         
         try:
-            parsed_number = phonenumbers.parse(value, None)
+            parsed_number = phonenumbers.parse(str(value), "BD")
             if not phonenumbers.is_valid_number(parsed_number):
                 raise serializers.ValidationError("Invalid phone number.")
         except phonenumbers.NumberParseException:
             raise serializers.ValidationError("Invalid phone number format.")
+
+        value = phonenumbers.format_number(parsed_number, PhoneNumberFormat.E164)
         
         is_exist = User.objects.filter(phone_number=value).exists()
         if is_exist:
@@ -40,7 +44,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return value
     
     def validate_email(self, value):
-        is_exist = User.objects.filter(email=value).exists()
+        value = User.objects.normalize_email(value).lower()
+        is_exist = User.objects.filter(email__iexact=value).exists()
         if is_exist:
             if self.instance and self.instance.email == value:
                 return value
@@ -56,6 +61,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        validated_data.setdefault("username", validated_data["email"].split("@")[0][:50])
         user = User.objects.create_user(**validated_data)
         
         return user

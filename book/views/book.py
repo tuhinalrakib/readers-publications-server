@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from book.models import BookReview
 from rest_framework.decorators import api_view
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 class BookListAPIView(ListAPIView):
     serializer_class = BookSerializerListRead
@@ -182,7 +183,7 @@ class BookRelatedAPIView(ListAPIView):
     
     def get_queryset(self):
         book_id = self.request.query_params.get('book_id')
-        book = Book.objects.get(id=book_id)
+        book = get_object_or_404(Book, id=book_id)
         categories = book.categories.all()
         author = book.author
         publisher_name = book.publisher_name
@@ -190,17 +191,21 @@ class BookRelatedAPIView(ListAPIView):
 
         related_books = Book.objects.filter(
             Q(is_active=True) &
-            Q(categories__id__in=categories) |
-            Q(author=author) |
-            Q(publisher_name=publisher_name) |
-            Q(title__icontains=title)
-        ).order_by('-published_date').distinct()
+            (
+                Q(categories__id__in=categories) |
+                Q(author=author) |
+                Q(publisher_name=publisher_name) |
+                Q(title__icontains=title)
+            )
+        ).exclude(id=book.id).order_by('-published_date').distinct()
 
         # if related books are less than 10, add more books
-        if related_books.count() < 10:
-            books = Book.objects.filter(is_active=True, id__not_in=related_books.values_list('id', flat=True)).order_by('-published_date')[:10]
-            related_books = related_books | books
-        
-        return related_books[:10]
+        related_book_ids = list(related_books.values_list('id', flat=True)[:10])
+        if len(related_book_ids) < 10:
+            excluded_book_ids = related_book_ids + [book.id]
+            remaining_book_ids = Book.objects.filter(is_active=True).exclude(
+                id__in=excluded_book_ids
+            ).order_by('-published_date').values_list('id', flat=True)[:10 - len(related_book_ids)]
+            related_book_ids.extend(remaining_book_ids)
 
-
+        return Book.objects.filter(id__in=related_book_ids).order_by('-published_date')
