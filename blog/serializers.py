@@ -1,13 +1,14 @@
 from rest_framework import serializers
 from .models import Blog
 from django.conf import settings
+from core.utils import build_media_url
 
 class BlogSerializerListRead(serializers.ModelSerializer):
     cover_image = serializers.SerializerMethodField()
     published_date = serializers.SerializerMethodField()
 
     def get_cover_image(self, obj):
-        return f"{settings.BACKEND_SITE_URL}{obj.cover_image.url}" if obj.cover_image else None
+        return build_media_url(obj.cover_image)
     
     def get_published_date(self, obj):
         return obj.published_date.strftime("%B %d, %Y") if obj.published_date else None
@@ -42,13 +43,13 @@ class BlogSerializerDetailRead(serializers.ModelSerializer):
     content_bn = serializers.SerializerMethodField()
 
     def get_cover_image(self, obj):
-        return f"{settings.BACKEND_SITE_URL}{obj.cover_image.url}" if obj.cover_image else None
+        return build_media_url(obj.cover_image)
     
     def get_published_date(self, obj):
         return obj.published_date.strftime("%B %d, %Y") if obj.published_date else None
     
     def get_author_image(self, obj):
-        return f"{settings.BACKEND_SITE_URL}{obj.author_image.url}" if obj.author_image else None
+        return build_media_url(obj.author_image)
     
     def get_content(self, obj):
         if obj.content:

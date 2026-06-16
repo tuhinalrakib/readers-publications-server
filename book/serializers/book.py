@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from book.models import Book, Category, BookImage, BookPreview, BookReview
-from django.conf import settings
+from core.utils import build_media_url
 
 class BookSerializerListRead(serializers.ModelSerializer):
     cover_image = serializers.SerializerMethodField(required=False)
@@ -20,9 +20,7 @@ class BookSerializerListRead(serializers.ModelSerializer):
         ]
 
     def get_cover_image(self, obj):
-        if obj.cover_image:
-            return f"{settings.BACKEND_SITE_URL}{obj.cover_image.url}"
-        return None
+        return build_media_url(obj.cover_image)
     
     def get_author_full_name(self, obj):
         return obj.author.name
@@ -58,9 +56,7 @@ class BookImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'alt_text']
 
     def get_image(self, obj):
-        if obj.image:
-            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
-        return None
+        return build_media_url(obj.image)
 
 class CategorySerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(required=False)
@@ -70,9 +66,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields =  ['name', 'description', 'image']  # or specify fields like ('id', 'name', 'description')
 
     def get_image(self, obj):
-        if obj.image:
-            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
-        return None
+        return build_media_url(obj.image)
     
 
 class BookSerializerDetailRead(serializers.ModelSerializer):
@@ -94,9 +88,7 @@ class BookSerializerDetailRead(serializers.ModelSerializer):
         ]
 
     def get_cover_image(self, obj):
-        if obj.cover_image:
-            return f"{settings.BACKEND_SITE_URL}{obj.cover_image.url}"
-        return None
+        return build_media_url(obj.cover_image)
 
     def get_author(self, obj):
         return {
@@ -106,7 +98,7 @@ class BookSerializerDetailRead(serializers.ModelSerializer):
             "name_bn": obj.author.name_bn,
             "bio": obj.author.description,
             "bio_bn": obj.author.description_bn,
-            "profile_picture": f"{settings.BACKEND_SITE_URL}{obj.author.profile_picture.url}" if obj.author.profile_picture else None,
+            "profile_picture": build_media_url(obj.author.profile_picture),
             "tags": obj.author.tags.filter(is_active=True).values('id', 'name', 'name_bn')
         }
     
@@ -127,7 +119,7 @@ class BookSerializerDetailRead(serializers.ModelSerializer):
         book_images_data = [
             {
                 "id": book_image.id,
-                "image": f"{settings.BACKEND_SITE_URL}{book_image.image.url}",
+                "image": build_media_url(book_image.image),
                 "alt_text": book_image.alt_text,
             }
             for book_image in book_images
@@ -153,9 +145,7 @@ class BookPreviewSerializerListRead(serializers.ModelSerializer):
         fields = ['id', 'image']
 
     def get_image(self, obj):
-        if obj.image:
-            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
-        return None
+        return build_media_url(obj.image)
     
 
 class BookReviewSerializerListRead(serializers.ModelSerializer):
@@ -169,7 +159,7 @@ class BookReviewSerializerListRead(serializers.ModelSerializer):
         return {
             "id": obj.user.id,
             "name": obj.user.full_name,
-            "profile_picture": f"{settings.BACKEND_SITE_URL}{obj.user.profile.profile_picture.url}" if hasattr(obj.user, 'profile') and obj.user.profile.profile_picture else None,
+            "profile_picture": build_media_url(obj.user.profile.profile_picture) if hasattr(obj.user, 'profile') else None,
         }
 
     def get_created_at(self, obj):
@@ -180,4 +170,3 @@ class BookReviewSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = BookReview
         fields = ['review', 'rating']
-

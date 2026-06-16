@@ -13,9 +13,11 @@ click==8.3.2
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
+cloudinary==1.44.2
 colorama==0.4.6
 Django==6.0.3
 django-ckeditor-5==0.2.20
+django-cloudinary-storage==0.3.0
 django-cors-headers==4.9.0
 django-phonenumber-field==8.4.0
 django-unfold==0.87.0

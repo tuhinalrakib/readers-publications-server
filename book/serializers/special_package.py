@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from book.models import SpecialPackage
-from django.conf import settings
+from core.utils import build_media_url
 
 class SpecialPackageSerializerListRead(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(required=False)
@@ -12,9 +12,7 @@ class SpecialPackageSerializerListRead(serializers.ModelSerializer):
         ]
 
     def get_image(self, obj):
-        if obj.image:
-            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
-        return None
+        return build_media_url(obj.image)
 
     
 class SpecialPackageSerializerDetailRead(serializers.ModelSerializer):
@@ -29,9 +27,7 @@ class SpecialPackageSerializerDetailRead(serializers.ModelSerializer):
         ]
 
     def get_image(self, obj):
-        if obj.image:
-            return f"{settings.BACKEND_SITE_URL}{obj.image.url}"
-        return None
+        return build_media_url(obj.image)
 
     def get_books(self, obj):
         books = obj.package_books.filter(is_active=True).order_by('index_number')
@@ -49,7 +45,7 @@ class SpecialPackageSerializerDetailRead(serializers.ModelSerializer):
                 "discounted_price": book.book.discounted_price,
                 "rating": book.book.rating,
                 "rating_count": book.book.rating_count,
-                "cover_image": f"{settings.BACKEND_SITE_URL}{book.book.cover_image.url}" if book.book.cover_image else None
+                "cover_image": build_media_url(book.book.cover_image)
             })
         return books_data
     

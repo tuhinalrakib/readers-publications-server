@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from cart.models import Cart
-from django.conf import settings
+from core.utils import build_media_url
 
 class CartSerializerCreate(serializers.ModelSerializer):
     class Meta:
@@ -45,7 +45,7 @@ class CartSerializerRead(serializers.ModelSerializer):
             'slug': obj.book.slug,
             'title': obj.book.title,
             'title_bn': obj.book.title_bn,
-            'cover_image': f"{settings.BACKEND_SITE_URL}{obj.book.cover_image.url}" if obj.book.cover_image else None,
+            'cover_image': build_media_url(obj.book.cover_image),
             "price": obj.book.price,
             "discounted_price": obj.book.discounted_price,
             "is_active": obj.book.is_active,

@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from core.models import GeneralData, State, City, Thana
-from django.conf import settings
+from core.utils import build_media_url
 
 @api_view(['GET'])
 def get_general_data(request):
@@ -16,7 +16,7 @@ def get_general_data(request):
             "address": general_data.address,
             "address_bn": general_data.address_bn,
             "delivery_charge": general_data.delivery_charge,
-            "website_logo": settings.BACKEND_SITE_URL + general_data.website_logo.url if general_data.website_logo else None,
+            "website_logo": build_media_url(general_data.website_logo),
             "social_links": {
                 "facebook": general_data.facebook,
                 "twitter": general_data.twitter,

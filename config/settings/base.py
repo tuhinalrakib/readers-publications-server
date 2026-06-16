@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 from decouple import config
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -213,6 +214,29 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # MEDIA_URL = BASE_DIR / 'media'
 MEDIA_URL = "/media/"
 
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="")
+_CLOUDINARY_URL_PARTS = urlparse(CLOUDINARY_URL) if CLOUDINARY_URL else None
+CLOUDINARY_CLOUD_NAME = config(
+    "CLOUDINARY_CLOUD_NAME",
+    default=_CLOUDINARY_URL_PARTS.hostname if _CLOUDINARY_URL_PARTS else "",
+)
+CLOUDINARY_API_KEY = config(
+    "CLOUDINARY_API_KEY",
+    default=_CLOUDINARY_URL_PARTS.username if _CLOUDINARY_URL_PARTS else "",
+)
+CLOUDINARY_API_SECRET = config(
+    "CLOUDINARY_API_SECRET",
+    default=_CLOUDINARY_URL_PARTS.password if _CLOUDINARY_URL_PARTS else "",
+)
+CLOUDINARY_FOLDER = config("CLOUDINARY_FOLDER", default="readers-publication")
+CLOUDINARY_IMAGE_MAX_WIDTH = config("CLOUDINARY_IMAGE_MAX_WIDTH", default=1600, cast=int)
+CLOUDINARY_IMAGE_MAX_HEIGHT = config("CLOUDINARY_IMAGE_MAX_HEIGHT", default=1600, cast=int)
+CLOUDINARY_IMAGE_QUALITY = config("CLOUDINARY_IMAGE_QUALITY", default=85, cast=int)
+CLOUDINARY_IMAGE_FORMAT = config("CLOUDINARY_IMAGE_FORMAT", default="WEBP")
+USE_CLOUDINARY_STORAGE = bool(
+    CLOUDINARY_URL or (CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET)
+)
+
 # Production-এ সব static ফাইল যেখানে জমা হবে
 STATIC_URL = '/static/'
 
@@ -225,7 +249,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 # তার বদলে এটি যুক্ত করুন:
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": (
+            "core.storage_backends.CloudinaryMediaStorage"
+            if USE_CLOUDINARY_STORAGE
+            else "django.core.files.storage.FileSystemStorage"
+        ),
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", # Manifest এর বদলে এটি ব্যবহার করা Vercel এর জন্য সেফ

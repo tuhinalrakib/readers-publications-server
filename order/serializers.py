@@ -6,7 +6,7 @@ from .models import OrderItem
 from shipping.models import Shipping
 from core.models import GeneralData
 from django.utils import timezone
-from django.conf import settings
+from core.utils import build_media_url
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
@@ -111,7 +111,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "slug": book.slug,
             "title": book.title,
             "price": book.get_book_price(),
-            "cover_image": settings.BACKEND_SITE_URL + book.cover_image.url if book.cover_image else None,
+            "cover_image": build_media_url(book.cover_image),
             "has_review": book.reviews.filter(is_active=True, user=self.context['request'].user).exists(),
         }
 
