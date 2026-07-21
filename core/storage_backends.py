@@ -1,4 +1,6 @@
+import logging
 import mimetypes
+import time
 import uuid
 from io import BytesIO
 from pathlib import PurePosixPath
@@ -7,9 +9,11 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.utils
 from django.conf import settings
-from django.core.files.storage import Storage
+from django.core.files.storage import FileSystemStorage, Storage
 from django.utils.deconstruct import deconstructible
 from PIL import Image, ImageOps, UnidentifiedImageError
+
+logger = logging.getLogger(__name__)
 
 
 @deconstructible
@@ -18,7 +22,7 @@ class CloudinaryMediaStorage(Storage):
     Store user uploaded media in Cloudinary.
 
     Images are normalized with Pillow before upload so Vercel does not need to
-    persist or serve local media files.
+    persist or serve local media files. Includes retries and local storage fallback.
     """
 
     def __init__(self):
@@ -34,6 +38,24 @@ class CloudinaryMediaStorage(Storage):
         self.max_height = getattr(settings, "CLOUDINARY_IMAGE_MAX_HEIGHT", 1600)
         self.quality = getattr(settings, "CLOUDINARY_IMAGE_QUALITY", 85)
         self.image_format = getattr(settings, "CLOUDINARY_IMAGE_FORMAT", "WEBP").upper()
+        self._local_storage = FileSystemStorage()
+
+    def _upload_with_retry(self, file_obj, **upload_kwargs):
+        max_retries = 3
+        last_exception = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                if hasattr(file_obj, "seek"):
+                    file_obj.seek(0)
+                return cloudinary.uploader.upload(file_obj, **upload_kwargs)
+            except Exception as e:
+                last_exception = e
+                logger.warning(
+                    f"Cloudinary upload attempt {attempt}/{max_retries} failed ({type(e).__name__}: {e}). Retrying..."
+                )
+                if attempt < max_retries:
+                    time.sleep(1 * attempt)
+        raise last_exception
 
     def _save(self, name, content):
         clean_name = self._clean_name(name)
@@ -41,27 +63,43 @@ class CloudinaryMediaStorage(Storage):
 
         processed_file = self._process_image(content)
         if processed_file is not None:
-            upload_result = cloudinary.uploader.upload(
-                processed_file,
-                public_id=public_id,
-                resource_type="image",
-                overwrite=False,
-                unique_filename=False,
-            )
-            return upload_result["public_id"]
+            upload_kwargs = {
+                "public_id": public_id,
+                "resource_type": "image",
+                "overwrite": False,
+                "unique_filename": False,
+            }
+            try:
+                upload_result = self._upload_with_retry(processed_file, **upload_kwargs)
+                return upload_result["public_id"]
+            except Exception as e:
+                logger.error(
+                    f"Cloudinary upload failed after retries for '{name}'. Falling back to local storage. Error: {e}"
+                )
+                if hasattr(content, "seek"):
+                    content.seek(0)
+                return self._local_storage._save(name, content)
 
         if hasattr(content, "seek"):
             content.seek(0)
 
         raw_public_id = self._build_public_id(clean_name, keep_suffix=True)
-        upload_result = cloudinary.uploader.upload(
-            content,
-            public_id=raw_public_id,
-            resource_type="auto",
-            overwrite=False,
-            unique_filename=False,
-        )
-        return upload_result["public_id"]
+        upload_kwargs = {
+            "public_id": raw_public_id,
+            "resource_type": "auto",
+            "overwrite": False,
+            "unique_filename": False,
+        }
+        try:
+            upload_result = self._upload_with_retry(content, **upload_kwargs)
+            return upload_result["public_id"]
+        except Exception as e:
+            logger.error(
+                f"Cloudinary raw upload failed after retries for '{name}'. Falling back to local storage. Error: {e}"
+            )
+            if hasattr(content, "seek"):
+                content.seek(0)
+            return self._local_storage._save(name, content)
 
     def url(self, name):
         if not name:
@@ -69,6 +107,9 @@ class CloudinaryMediaStorage(Storage):
 
         if str(name).startswith(("http://", "https://")):
             return name
+
+        if self._local_storage.exists(name):
+            return self._local_storage.url(name)
 
         resource_type = self._resource_type_for_name(name)
         options = {
@@ -82,17 +123,26 @@ class CloudinaryMediaStorage(Storage):
         return url
 
     def exists(self, name):
+        if self._local_storage.exists(name):
+            return True
         return False
 
     def delete(self, name):
         if not name:
             return
 
-        cloudinary.uploader.destroy(
-            name,
-            resource_type=self._resource_type_for_name(name),
-            invalidate=True,
-        )
+        if self._local_storage.exists(name):
+            self._local_storage.delete(name)
+            return
+
+        try:
+            cloudinary.uploader.destroy(
+                name,
+                resource_type=self._resource_type_for_name(name),
+                invalidate=True,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to delete '{name}' from Cloudinary: {e}")
 
     def _process_image(self, content):
         if hasattr(content, "seek"):

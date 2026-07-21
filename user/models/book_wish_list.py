@@ -15,7 +15,13 @@ class BookWishList(BaseModel):
     class Meta:
         verbose_name = "Book Wish List"
         verbose_name_plural = "Book Wish Lists"
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'book'], name='unique_user_book_wishlist')
+        ]
         
     def clean(self):
-        if BookWishList.objects.filter(user=self.user, book=self.book).exists():
+        qs = BookWishList.objects.filter(user=self.user, book=self.book)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
             raise ValidationError("Book already in wishlist")

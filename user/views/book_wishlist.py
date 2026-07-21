@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from user.models import BookWishList
 from user.serializers import UserBookWishListSerializerRead
 from rest_framework.response import Response
@@ -7,11 +8,14 @@ from book.models import Book
 from core.pagination import GeneralPagination
 
 class UserBookWishListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = UserBookWishListSerializerRead
     queryset = BookWishList.objects.all()
     
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         user = request.user
+        if not user or not user.is_authenticated:
+            return Response({"error": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
         
         paginator = GeneralPagination()
         paginator.page_size = 4
@@ -19,7 +23,7 @@ class UserBookWishListAPIView(APIView):
         serializer = self.serializer_class(page, many=True)
         return paginator.get_paginated_response(serializer.data)
     
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         try:
             user = request.user
             book_id = request.data.get('book_id')
@@ -34,16 +38,18 @@ class UserBookWishListAPIView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-    def delete(self, request, id):
+    def delete(self, request, id=None, *args, **kwargs):
         try:
             user = request.user
-            if "book_" in id:
-                book_id = id.split("_")[1]
+            if not id:
+                return Response({"error": "ID parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+            if "book_" in str(id):
+                book_id = str(id).split("_")[1]
                 book_wishlist = BookWishList.objects.get(user=user, book_id=book_id)
             else:
                 book_wishlist = BookWishList.objects.get(user=user, id=id)
             book_wishlist.delete()
-            return Response("Book removed from wishlist successfully", status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     

@@ -14,14 +14,16 @@ class OrderViewSet(viewsets.ModelViewSet):
     lookup_field = 'order_id'
     
     def get_queryset(self):
-        status = self.request.query_params.get('status', 'all')
-        if status == 'all':
+        order_status = self.request.query_params.get('status', 'all')
+        if order_status == 'all':
             return Order.objects.filter(user=self.request.user).order_by("-created_at") 
-        return Order.objects.filter(user=self.request.user, status=status).order_by("-created_at")
+        return Order.objects.filter(user=self.request.user, status=order_status).order_by("-created_at")
     
     def paginate_queryset(self, queryset):
-        self.pagination_class.page_size = 4
-        return super().paginate_queryset(queryset)
+        page = super().paginate_queryset(queryset)
+        if self.paginator is not None:
+            self.paginator.page_size = 4
+        return page
     
     def get_serializer_class(self):
         if self.action == 'list':

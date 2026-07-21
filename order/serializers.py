@@ -54,7 +54,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         # get total price
         sub_total = sum(item.book.get_book_price() * item.quantity for item in cart_items)
         general_data = GeneralData.objects.first()
-        if general_data.delivery_charge:
+        if general_data and general_data.delivery_charge:
             shipping_cost = general_data.delivery_charge
         else:
             shipping_cost = 0
