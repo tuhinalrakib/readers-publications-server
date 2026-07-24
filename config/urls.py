@@ -41,6 +41,25 @@ schema_view = get_schema_view(
 )
 
 
+from rest_framework.routers import DefaultRouter
+from core.views.admin_api import (
+    AdminDashboardStatsView, AdminUsersViewSet, AdminAuthorsViewSet,
+    AdminBooksViewSet, AdminCategoriesViewSet, AdminOrdersViewSet,
+    AdminBlogsViewSet, AdminCarouselsViewSet, AdminTestimonialsViewSet,
+    AdminSupportViewSet, AdminGeneralDataView
+)
+
+admin_router = DefaultRouter()
+admin_router.register(r'users', AdminUsersViewSet, basename='admin-users')
+admin_router.register(r'authors', AdminAuthorsViewSet, basename='admin-authors')
+admin_router.register(r'books', AdminBooksViewSet, basename='admin-books')
+admin_router.register(r'categories', AdminCategoriesViewSet, basename='admin-categories')
+admin_router.register(r'orders', AdminOrdersViewSet, basename='admin-orders')
+admin_router.register(r'blogs', AdminBlogsViewSet, basename='admin-blogs')
+admin_router.register(r'carousels', AdminCarouselsViewSet, basename='admin-carousels')
+admin_router.register(r'testimonials', AdminTestimonialsViewSet, basename='admin-testimonials')
+admin_router.register(r'support', AdminSupportViewSet, basename='admin-support')
+
 urlpatterns = [
     path("", home),
     path('admin/', admin.site.urls),
@@ -48,6 +67,12 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Frontend Admin APIs
+    path('api/v1/admin/dashboard-stats/', AdminDashboardStatsView.as_view(), name='admin-dashboard-stats'),
+    path('api/v1/admin/general-settings/', AdminGeneralDataView.as_view(), name='admin-general-settings'),
+    path('api/v1/admin/', include(admin_router.urls)),
+
     path('user/', include('user.urls')),
     path('book/', include('book.urls')),    
     path('core/', include('core.urls')),

@@ -74,10 +74,18 @@ class UserProfileSerializerRead(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
     cart_items = serializers.SerializerMethodField()
     user_id = serializers.SerializerMethodField()
+    is_staff = serializers.SerializerMethodField()
+    is_superuser = serializers.SerializerMethodField()
     
     class Meta:
         model = UserProfile
-        fields = ['id', 'user_id', 'profile_picture', 'address', 'full_name', 'email', 'phone_number', 'joined_at', 'profile_picture', 'cart_items']
+        fields = ['id', 'user_id', 'profile_picture', 'address', 'full_name', 'email', 'phone_number', 'joined_at', 'profile_picture', 'cart_items', 'is_staff', 'is_superuser']
+
+    def get_is_staff(self, instance):
+        return instance.user.is_staff
+
+    def get_is_superuser(self, instance):
+        return instance.user.is_superuser
 
     def get_full_name(self, instance):
         return instance.user.full_name if instance.user.full_name else instance.user.username or instance.user.email.split('@')[0]
